@@ -1,92 +1,57 @@
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
-
-
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class Day3 {
 
-    public static int solveBank(String bank) {
+    // Function to get the largest number by selecting exactly n digits in order
+    public static String largestNumber(String bank, int n) {
+        int len = bank.length();
+        char[] result = new char[n];
+        int start = 0;
 
-        int[] digits = new int[bank.length()];
-        int maxVal = -1;
+        for (int i = 0; i < n; i++) {
+            int end = len - (n - i); // Last possible index to pick for this digit
+            char maxDigit = '0';
+            int maxIndex = start;
 
-        for (int i = 0; i < bank.length(); i++) {
-            digits[i] = Character.getNumericValue(bank.charAt(i));
-            if (digits[i] > maxVal) {
-                maxVal = digits[i];
+            for (int j = start; j <= end; j++) {
+                if (bank.charAt(j) > maxDigit) {
+                    maxDigit = bank.charAt(j);
+                    maxIndex = j;
+                }
             }
+
+            result[i] = maxDigit;
+            start = maxIndex + 1; // Move start past chosen digit
         }
 
-        List<Integer> maxIndices = new ArrayList<>();
-        for (int i = 0; i < digits.length; i++) {
-            if (digits[i] == maxVal) {
-                maxIndices.add(i);
-            }
-        }
-
-        int globalMaxJoltage = 0;
-
-        for (int anchorIndex : maxIndices) {
-
-            int leftMax = -1;
-
-            for (int i = 0; i < anchorIndex; i++) {
-                if (digits[i] > leftMax) {
-                    leftMax = digits[i];
-                }
-            }
-
-            if (leftMax != -1) {
-                int joltage = (leftMax * 10) + maxVal;
-                if (joltage > globalMaxJoltage) {
-                    globalMaxJoltage = joltage;
-                }
-            }
-
-
-            int rightMax = -1;
-
-            for (int i = anchorIndex + 1; i < digits.length; i++) {
-                if (digits[i] > rightMax) {
-                    rightMax = digits[i];
-                }
-            }
-
-            if (rightMax != -1) {
-                int joltage = (maxVal * 10) + rightMax;
-                if (joltage > globalMaxJoltage) {
-                    globalMaxJoltage = joltage;
-                }
-            }
-        }
-
-        return globalMaxJoltage;
+        return new String(result);
     }
 
-
     public static void main(String[] args) {
+        // Example input
 
-        ArrayList<String> inputs = new ArrayList<>();
-        try (Scanner fileScanner = new Scanner(Paths.get("input Day 3.txt"))){
-            while(fileScanner.hasNext()){
-                inputs.add(fileScanner.nextLine());
+        ArrayList<String> banks = new ArrayList();
+        try ( Scanner fileScanner = new Scanner(Paths.get("input Day 3.txt"))){
+            while(fileScanner.hasNext()) {
+                banks.add(fileScanner.nextLine());
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
-        int totalOutput = 0;
-        System.out.println("--- Results ---");
-        for (String input : inputs) {
-            int max = solveBank(input);
-            System.out.println("Bank: " + input.substring(0, 10) + "... | Max Joltage: " + max);
-            totalOutput += max;
+        int partOneDigits = 2;
+        int partTwoDigits = 12;
+
+        long sumPartOne = 0;
+        long sumPartTwo = 0;
+
+        for (String bank : banks) {
+            sumPartOne += Long.parseLong(largestNumber(bank, partOneDigits));
+            sumPartTwo += Long.parseLong(largestNumber(bank, partTwoDigits));
         }
-        System.out.println("--------------------");
-        System.out.println("Total Output Joltage: " + totalOutput);
+
+        System.out.println("Part One Total Joltage: " + sumPartOne);
+        System.out.println("Part Two Total Joltage: " + sumPartTwo);
     }
 }
